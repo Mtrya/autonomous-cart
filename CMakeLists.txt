@@ -48,3 +48,28 @@ target_link_libraries(test_yolo
 
 
 
+
+# Test lidar
+# Add to your existing CMakeLists.txt
+find_package(OpenCV REQUIRED)
+
+# RPLIDAR SDK paths
+set(RPLIDAR_SDK_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/radar/rplidar_sdk/sdk")
+set(RPLIDAR_LIB_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/radar/rplidar_sdk/output/Linux/Release")
+
+# Include directories
+include_directories(${RPLIDAR_SDK_PATH}/include)
+include_directories(${OpenCV_INCLUDE_DIRS})
+
+# Create test_radar executable
+add_executable(test_radar src/radar/test_radar.cpp)
+
+# Link against the pre-compiled RPLIDAR library
+target_link_libraries(test_radar 
+    ${RPLIDAR_LIB_PATH}/libsl_lidar_sdk.a
+    ${OpenCV_LIBS} 
+    pthread
+)
+
+# Add any necessary compile definitions
+target_compile_definitions(test_radar PRIVATE -D_REENTRANT)

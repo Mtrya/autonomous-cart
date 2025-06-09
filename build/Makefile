@@ -155,6 +155,19 @@ test_yolo/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_yolo.dir/build.make CMakeFiles/test_yolo.dir/build
 .PHONY : test_yolo/fast
 
+#=============================================================================
+# Target rules for targets named test_radar
+
+# Build rule for target.
+test_radar: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test_radar
+.PHONY : test_radar
+
+# fast build rule for target.
+test_radar/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_radar.dir/build.make CMakeFiles/test_radar.dir/build
+.PHONY : test_radar/fast
+
 src/camera/test_libs.o: src/camera/test_libs.cpp.o
 .PHONY : src/camera/test_libs.o
 
@@ -227,6 +240,30 @@ src/camera/test_yolo.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_yolo.dir/build.make CMakeFiles/test_yolo.dir/src/camera/test_yolo.cpp.s
 .PHONY : src/camera/test_yolo.cpp.s
 
+src/radar/test_radar.o: src/radar/test_radar.cpp.o
+.PHONY : src/radar/test_radar.o
+
+# target to build an object file
+src/radar/test_radar.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_radar.dir/build.make CMakeFiles/test_radar.dir/src/radar/test_radar.cpp.o
+.PHONY : src/radar/test_radar.cpp.o
+
+src/radar/test_radar.i: src/radar/test_radar.cpp.i
+.PHONY : src/radar/test_radar.i
+
+# target to preprocess a source file
+src/radar/test_radar.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_radar.dir/build.make CMakeFiles/test_radar.dir/src/radar/test_radar.cpp.i
+.PHONY : src/radar/test_radar.cpp.i
+
+src/radar/test_radar.s: src/radar/test_radar.cpp.s
+.PHONY : src/radar/test_radar.s
+
+# target to generate assembly for a file
+src/radar/test_radar.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_radar.dir/build.make CMakeFiles/test_radar.dir/src/radar/test_radar.cpp.s
+.PHONY : src/radar/test_radar.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -237,6 +274,7 @@ help:
 	@echo "... rebuild_cache"
 	@echo "... test_libs"
 	@echo "... test_onnx"
+	@echo "... test_radar"
 	@echo "... test_yolo"
 	@echo "... src/camera/test_libs.o"
 	@echo "... src/camera/test_libs.i"
@@ -247,6 +285,9 @@ help:
 	@echo "... src/camera/test_yolo.o"
 	@echo "... src/camera/test_yolo.i"
 	@echo "... src/camera/test_yolo.s"
+	@echo "... src/radar/test_radar.o"
+	@echo "... src/radar/test_radar.i"
+	@echo "... src/radar/test_radar.s"
 .PHONY : help
 
 

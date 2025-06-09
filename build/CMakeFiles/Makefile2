@@ -66,6 +66,7 @@ CMAKE_BINARY_DIR = /home/optics/autonomous_cart/build
 all: CMakeFiles/test_libs.dir/all
 all: CMakeFiles/test_onnx.dir/all
 all: CMakeFiles/test_yolo.dir/all
+all: CMakeFiles/test_radar.dir/all
 .PHONY : all
 
 # The main recursive "preinstall" target.
@@ -76,6 +77,7 @@ preinstall:
 clean: CMakeFiles/test_libs.dir/clean
 clean: CMakeFiles/test_onnx.dir/clean
 clean: CMakeFiles/test_yolo.dir/clean
+clean: CMakeFiles/test_radar.dir/clean
 .PHONY : clean
 
 #=============================================================================
@@ -137,7 +139,7 @@ CMakeFiles/test_onnx.dir/clean:
 CMakeFiles/test_yolo.dir/all:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_yolo.dir/build.make CMakeFiles/test_yolo.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_yolo.dir/build.make CMakeFiles/test_yolo.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/optics/autonomous_cart/build/CMakeFiles --progress-num=5,6 "Built target test_yolo"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/optics/autonomous_cart/build/CMakeFiles --progress-num=7,8 "Built target test_yolo"
 .PHONY : CMakeFiles/test_yolo.dir/all
 
 # Build rule for subdir invocation for target.
@@ -155,6 +157,32 @@ test_yolo: CMakeFiles/test_yolo.dir/rule
 CMakeFiles/test_yolo.dir/clean:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_yolo.dir/build.make CMakeFiles/test_yolo.dir/clean
 .PHONY : CMakeFiles/test_yolo.dir/clean
+
+#=============================================================================
+# Target rules for target CMakeFiles/test_radar.dir
+
+# All Build rule for target.
+CMakeFiles/test_radar.dir/all:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_radar.dir/build.make CMakeFiles/test_radar.dir/depend
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_radar.dir/build.make CMakeFiles/test_radar.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/optics/autonomous_cart/build/CMakeFiles --progress-num=5,6 "Built target test_radar"
+.PHONY : CMakeFiles/test_radar.dir/all
+
+# Build rule for subdir invocation for target.
+CMakeFiles/test_radar.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/optics/autonomous_cart/build/CMakeFiles 2
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/test_radar.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/optics/autonomous_cart/build/CMakeFiles 0
+.PHONY : CMakeFiles/test_radar.dir/rule
+
+# Convenience name for target.
+test_radar: CMakeFiles/test_radar.dir/rule
+.PHONY : test_radar
+
+# clean rule for target.
+CMakeFiles/test_radar.dir/clean:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_radar.dir/build.make CMakeFiles/test_radar.dir/clean
+.PHONY : CMakeFiles/test_radar.dir/clean
 
 #=============================================================================
 # Special targets to cleanup operation of make.
