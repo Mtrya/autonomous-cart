@@ -35,7 +35,7 @@ def export_yolo_to_onnx():
             opset=11,              # OpenCV works best with opset 11
             nms=False,             # Disable built-in NMS for manual control
             agnostic_nms=False,
-            half=False,            # Use FP32 for better compatibility
+            half=True,            # Use FP32 for better compatibility
             device='cpu'           # Export on CPU for consistency
         )
         

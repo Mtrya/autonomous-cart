@@ -357,4 +357,6 @@ CMakeFiles/test_yolo.dir/src/camera/test_yolo.cpp.o: \
  /usr/include/c++/12/bits/stream_iterator.h /usr/include/c++/12/fstream \
  /usr/include/x86_64-linux-gnu/c++/12/bits/basic_file.h \
  /usr/include/x86_64-linux-gnu/c++/12/bits/c++io.h \
- /usr/include/c++/12/bits/fstream.tcc
+ /usr/include/c++/12/bits/fstream.tcc /usr/include/c++/12/thread \
+ /usr/include/c++/12/bits/std_thread.h \
+ /usr/include/c++/12/bits/this_thread_sleep.h
