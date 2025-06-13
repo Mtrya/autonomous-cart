@@ -1,1 +1,0 @@
-/usr/bin/c++ CMakeFiles/test_onnx.dir/src/camera/test_onnx.cpp.o -o test_onnx  -Wl,-rpath,/usr/local/lib /usr/local/lib/libonnxruntime.so 
