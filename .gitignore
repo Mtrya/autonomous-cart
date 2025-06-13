@@ -1,5 +1,4 @@
-.*/*
-build/*
-*.onnx
-*.pt
-*.pth
+build/
+.onnx
+.pt
+.pth

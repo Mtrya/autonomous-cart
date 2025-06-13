@@ -347,4 +347,11 @@ CMakeFiles/test_camera_handler.dir/test_camera_handler.cpp.o: \
  /usr/include/opencv4/opencv2/stitching/detail/camera.hpp \
  /usr/include/opencv4/opencv2/video.hpp \
  /usr/include/opencv4/opencv2/video/tracking.hpp \
- /usr/include/opencv4/opencv2/video/background_segm.hpp
+ /usr/include/opencv4/opencv2/video/background_segm.hpp \
+ /usr/local/include/onnxruntime_cxx_api.h \
+ /usr/local/include/onnxruntime_c_api.h \
+ /usr/lib/gcc/x86_64-linux-gnu/12/include/stdbool.h \
+ /usr/local/include/onnxruntime_float16.h /usr/include/c++/12/variant \
+ /usr/local/include/onnxruntime_cxx_inline.h /usr/include/c++/12/iterator \
+ /usr/include/c++/12/bits/stream_iterator.h \
+ /home/optics/autonomous_cart/src/camera/tests/../detection.hpp

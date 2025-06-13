@@ -144,6 +144,7 @@ test_camera_handler: /usr/lib/x86_64-linux-gnu/libopencv_viz.so.4.6.0
 test_camera_handler: /usr/lib/x86_64-linux-gnu/libopencv_wechat_qrcode.so.4.6.0
 test_camera_handler: /usr/lib/x86_64-linux-gnu/libopencv_xobjdetect.so.4.6.0
 test_camera_handler: /usr/lib/x86_64-linux-gnu/libopencv_xphoto.so.4.6.0
+test_camera_handler: /usr/local/lib/libonnxruntime.so
 test_camera_handler: /usr/lib/x86_64-linux-gnu/libopencv_highgui.so.4.6.0
 test_camera_handler: /usr/lib/x86_64-linux-gnu/libopencv_datasets.so.4.6.0
 test_camera_handler: /usr/lib/x86_64-linux-gnu/libopencv_plot.so.4.6.0

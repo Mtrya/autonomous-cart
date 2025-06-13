@@ -186,15 +186,101 @@ std::vector<Detection> CameraHandler::runModel(const cv::Mat &frame)
     return postprocessOutput(output_data, output_shape, frame.cols, frame.rows);
 }
 
-std::vector<float> CameraHandler::preprocessFrame(const cv::Mat &frmae)
+std::vector<float> CameraHandler::preprocessFrame(const cv::Mat &frame)
 {
-    // TODO
+    std::vector<float> input_tensor_values;
+    input_tensor_values.resize(3 * frame_height * frame_width);
+
+    // Convert BGR to RGB and normalize to [0,1]
+    cv::Mat rgb_frame;
+    cv::cvtColor(frame, rgb_frame, cv::COLOR_BGR2RGB);
+    rgb_frame.convertTo(rgb_frame, CV_32F, 1.0 / 255.0);
+
+    // Convert HWC to CHW format
+    std::vector<cv::Mat> channels(3);
+    cv::split(rgb_frame, channels);
+
+    int channel_size = frame_height * frame_width;
+    for (int c = 0; c < 3; c++)
+    {
+        std::memcpy(input_tensor_values.data() + c * channel_size, channels[c].data,
+                    channel_size * sizeof(float));
+    }
+
+    return input_tensor_values;
 }
 
 DetectionResult CameraHandler::postprocessOutput(float *output_data,
                                                  const std::vector<int64_t> &output_shape,
                                                  int img_width, int img_height)
 {
-    // TODO
+    DetectionResult detections;
+
+    // YOLOv8 output format: [batch, 84, num_detections] where 84 = 4 box coords + 80 classes
+    int num_classes = output_shape[1] - 4;
+    int num_detections = output_shape[2];
+
+    for (int i = 0; i < num_detections; i++)
+    {
+        // Extract box coordinates (center_x, center_y, width, height)
+        float cx = output_data[0 * num_detections + i];
+        float cy = output_data[1 * num_detections + i];
+        float w = output_data[2 * num_detections + i];
+        float h = output_data[3 * num_detections + i];
+
+        // Find class with highest confidence
+        float max_conf = 0;
+        int class_id = 0;
+        for (int c = 4; c < output_shape[1]; c++)
+        {
+            float conf = output_data[c * num_detections + i];
+            if (conf > max_conf)
+            {
+                max_conf = conf;
+                class_id = c - 4;
+            }
+        }
+
+        if (max_conf > confidence_threshold_)
+        {
+            // Convert center coordinates to corner coordinates
+            float x1 = cx - w / 2;
+            float y1 = cy - h / 2;
+            float x2 = cx + w / 2;
+            float y2 = cy + h / 2;
+
+            // Clamp to image boundaries
+            x1 = std::max(0.0f, std::min(x1, (float)img_width));
+            y1 = std::max(0.0f, std::min(y1, (float)img_height));
+            x2 = std::max(0.0f, std::min(x2, (float)img_width));
+            y2 = std::max(0.0f, std::min(y2, (float)img_height));
+
+            cv::Rect box(cv::Point(x1, y1), cv::Point(x2, y2));
+            std::string class_name = (class_id < class_names_.size()) ? class_names_[class_id] : "unknown";
+
+            detections.emplace_back(box, max_conf, class_id, class_name);
+        }
+    }
+
+    // Apply Non-Maximum Suppression
+    std::vector<int> indices;
+    std::vector<cv::Rect> boxes;
+    std::vector<float> scores;
+
+    for (const auto &det : detections)
+    {
+        boxes.push_back(det.box);
+        scores.push_back(det.confidence);
+    }
+
+    cv::dnn::NMSBoxes(boxes, scores, confidence_threshold_, nms_threshold_, indices);
+
+    DetectionResult final_detections;
+    for (int idx : indices)
+    {
+        final_detections.push_back(detections[idx]);
+    }
+
+    return final_detections;
 }
 // <<< End Core Functions <<<

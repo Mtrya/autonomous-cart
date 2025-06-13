@@ -28,7 +28,7 @@ def export_yolo_to_onnx():
         print("Exporting to ONNX format...")
         export_path = model.export(
             format='onnx',
-            imgsz=640,
+            imgsz=(480,640),
             optimize=True,       
             dynamic=False,         # Fixed input size
             simplify=True,         # Simplify model graph

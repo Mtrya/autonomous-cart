@@ -25,7 +25,7 @@ public:
     DetectionResult runModel(const cv::Mat &frame); // run YOLO model on frame
 
     // Utility functions
-    bool isReady() const { return camera_ready && cap.isOpened(); } // check if camera is ready
+    bool isReady() const { return camera_ready && model_ready && cap.isOpened(); } // check if camera is ready
     int getWidth() const { return frame_width; }
     int getHeight() const { return frame_height; }
     double getFPS() const { return target_fps; }
