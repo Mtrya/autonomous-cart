@@ -1,3 +1,0 @@
-/home/optics/autonomous_cart/src/camera/tests/build/CMakeFiles/test_camera_handler.dir
-/home/optics/autonomous_cart/src/camera/tests/build/CMakeFiles/edit_cache.dir
-/home/optics/autonomous_cart/src/camera/tests/build/CMakeFiles/rebuild_cache.dir
