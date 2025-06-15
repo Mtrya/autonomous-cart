@@ -2,3 +2,4 @@ build/
 .onnx
 .pt
 .pth
+plots/
