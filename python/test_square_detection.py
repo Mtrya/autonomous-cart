@@ -457,7 +457,7 @@ def visualize_detection_result(points: List[RadarPoint], result: SquareDetection
                 bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.8))
     
     plt.tight_layout()
-    plt.savefig(f"/home/optics/autonomous_cart/python/plots/{title}.png")
+    plt.savefig(f"/home/optics/autonomous-cart/python/plots/{title}.png")
 
 if __name__ == "__main__":
     print("Square Detection Algorithm Testing")

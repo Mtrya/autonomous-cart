@@ -59,11 +59,45 @@ struct SquareDetectionResult
     SquareDetectionResult() : num_inliers(0), fitness_score(0.0f), valid(false) {}
 };
 
+struct Object
+{ // Object = Target or Obstacle
+    float center_forward;
+    float center_lateral;
+    float radius;    // approximate radius
+    int point_count; // number of points in this obstacle
+    float density;   // points per unit area (quality metric)
+
+    Object(float cf = 0, float cl = 0, float r = 0, int count = 0)
+        : center_forward(cf), center_lateral(cl), radius(r), point_count(count)
+    {
+        density = count > 0 ? count / (M_PI * r * r + 1e-6f) : 0.0f;
+    }
+};
+
+struct ObjectDetectionResult
+{
+    std::vector<Object> objects;
+    int num_objects;
+    float object_coverage;
+    bool valid;
+
+    ObjectDetectionResult() : num_objects(0), object_coverage(0.0f), valid(false) {}
+};
+
+struct ComprehensiveDetectionResult
+{
+    SquareDetectionResult square_result;
+    ObjectDetectionResult object_result;
+    bool pipeline_success;
+
+    ComprehensiveDetectionResult() : pipeline_success(false) {}
+};
+
 class RadarHandler
 {
 public:
-    RadarHandler(size_t max_buffer_size = 4096);
-    ~RadarHandler(); // ensures clean shutdown
+    RadarHandler(size_t max_buffer_size = 1024); // 1024 = approximately 1s
+    ~RadarHandler();                             // ensures clean shutdown
 
     // Connection management
     bool connect(const std::string &serial_port = "/dev/ttyUSB0", sl_u32 baudrate = 115200);
@@ -94,6 +128,9 @@ public:
 
     // Core Detection Methods
     SquareDetectionResult detectSquareBoundary(float inlier_threshold = 100.0f, int max_iterations = 1000);
+    ObjectDetectionResult detectObjects(const std::vector<RadarPoint> &interior_outliers,
+                                        int num_objects = 4, float min_object_radius = 200.0f);
+    ComprehensiveDetectionResult runDetectionPipeline(int num_objects = 4, float square_inlier_threshold = 100.0f);
 
 private:
     // LIDAR hardware
@@ -138,6 +175,11 @@ private:
     std::vector<RadarPoint> findSquareInliers(const std::vector<RadarPoint> &points,
                                               const Square &square, float threshold);
     std::array<float, 4> calculateRadarToEdgeDistances(const Square &square);
+
+    // Object Detection
+    bool isPointInsideSquare(const RadarPoint &point, const Square &square);
+    std::vector<std::vector<RadarPoint>> kMeansCluster(const std::vector<RadarPoint> &points, int k);
+    Object computeObjectFromCluster(const std::vector<RadarPoint> &cluster);
 };
 
 #endif

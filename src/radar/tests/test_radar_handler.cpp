@@ -67,8 +67,8 @@ bool testRadarConnection()
 
         if (scan_started)
         {
-            std::cout << "Collecting data for 3 seconds..." << std::endl;
-            std::this_thread::sleep_for(std::chrono::seconds(3));
+            std::cout << "Collecting data for 20 seconds..." << std::endl;
+            std::this_thread::sleep_for(std::chrono::seconds(20));
 
             auto points = radar.getRecentPoints();
             std::cout << "Collected " << points.size() << " points" << std::endl;

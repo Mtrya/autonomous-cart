@@ -6,7 +6,22 @@
 #include <string>
 #include <memory>
 #include <vector>
-#include "detection.hpp"
+
+struct Detection
+{
+    cv::Rect box;
+    float confidence;
+    int class_id;
+    std::string class_name;
+
+    Detection() : confidence(0.0f), class_id(-1) {}
+
+    Detection(const cv::Rect &bbox, float conf, int id, const std::string &name)
+        : box(bbox), confidence(conf), class_id(id), class_name(name) {}
+};
+
+// Collection of detections for a single frame
+using DetectionResult = std::vector<Detection>;
 
 class CameraHandler
 {

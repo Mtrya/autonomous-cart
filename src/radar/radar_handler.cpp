@@ -306,8 +306,8 @@ void RadarHandler::addPoint(const sl_lidar_response_measurement_node_hq_t &node)
     last_sync_state_ = current_sync;
 
     // Convert LIDAR data to RadarPoint
-    float angle_deg = (node.angle_z_q14 * 90.0f) / 16384.0f;
-    float distance_mm = node.dist_mm_q2 / 4.0f;
+    float angle_deg = (node.angle_z_q14 * 90.0f) / 16384.0f; // 16384 = 2^14
+    float distance_mm = node.dist_mm_q2 / 4.0f;              // 4 = 2^2
     int quality = node.quality >> SL_LIDAR_RESP_MEASUREMENT_QUALITY_SHIFT;
 
     RadarPoint point(distance_mm, angle_deg, quality);

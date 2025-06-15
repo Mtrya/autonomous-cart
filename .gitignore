@@ -3,3 +3,4 @@ build/
 .pt
 .pth
 plots/
+rplidar_sdk/

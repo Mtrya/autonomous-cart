@@ -6,7 +6,8 @@
                 "${workspaceFolder}/**",
                 "${workspaceFolder}/src/radar/rplidar_sdk/sdk/include",
                 "/usr/include/opencv4",
-                "/usr/include/opencv4/opencv2"
+                "/usr/include/opencv4/opencv2",
+                "/home/optics/autonomous-cart/src/radar/rplidar_sdk/sdk/"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/gcc",
