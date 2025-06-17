@@ -2,13 +2,14 @@
 #include <iostream>
 #include <algorithm>
 #include <random>
+#include <set>
 
 // >>> Constructor/Destructor >>>
 RadarHandler::RadarHandler(size_t max_buffer_size)
     : driver_(nullptr), channel_(nullptr), is_connected_(false), is_scanning_(false),
       max_buffer_size_(max_buffer_size), rotation_count_(0), last_sync_state_(false),
       should_stop_scanning_(false), min_quality_(10), min_range_mm_(150.0f), max_range_mm_(6000.0f),
-      detection_inlier_threshold_(100.0f), detection_max_iterations_(1000)
+      detection_inlier_threshold_(128.0f), detection_max_iterations_(1000)
 {
     std::cout << "RadarHandler initialized with buffer size: " << max_buffer_size_ << std::endl;
 }
@@ -423,6 +424,134 @@ std::array<float, 4> RadarHandler::calculateRadarToEdgeDistances(const Square &s
     };
 }
 
+std::vector<std::vector<RadarPoint>> RadarHandler::kMeansCluster(const std::vector<RadarPoint> &points, int k)
+{
+    if (points.size() < k)
+        return {};
+
+    // Initialize centroids randomly
+    // initialization is optimizable
+    std::vector<std::pair<float, float>> centroids(k);
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> dis(0, points.size() - 1);
+
+    for (int i = 0; i < k; ++i)
+    {
+        const auto &rand_point = points[dis(gen)];
+        centroids[i] = {rand_point.forward_distance, rand_point.lateral_distance};
+    }
+
+    std::vector<std::vector<RadarPoint>> clusters(k);
+
+    // K-means iterations
+    for (int iter = 0; iter < 50; ++iter)
+    { // Max 50 iterations
+        // Clear clusters
+        for (auto &cluster : clusters)
+        {
+            cluster.clear();
+        }
+
+        // Assign points to nearest centroid
+        for (const auto &point : points)
+        {
+            int best_cluster = 0;
+            float min_dist = std::numeric_limits<float>::max();
+
+            for (int i = 0; i < k; ++i)
+            {
+                float dx = point.forward_distance - centroids[i].first;
+                float dy = point.lateral_distance - centroids[i].second;
+                float dist = dx * dx + dy * dy;
+
+                if (dist < min_dist)
+                {
+                    min_dist = dist;
+                    best_cluster = i;
+                }
+            }
+
+            clusters[best_cluster].push_back(point);
+        }
+
+        // Update centroids
+        bool converged = true;
+        for (int i = 0; i < k; ++i)
+        {
+            if (!clusters[i].empty())
+            {
+                float sum_x = 0, sum_y = 0;
+                for (const auto &point : clusters[i])
+                {
+                    sum_x += point.forward_distance;
+                    sum_y += point.lateral_distance;
+                }
+
+                float new_x = sum_x / clusters[i].size();
+                float new_y = sum_y / clusters[i].size();
+
+                if (abs(new_x - centroids[i].first) > 10.0f || abs(new_y - centroids[i].second) > 10.0f)
+                {
+                    converged = false;
+                }
+
+                centroids[i] = {new_x, new_y};
+            }
+        }
+
+        if (converged)
+            break;
+    }
+
+    return clusters;
+}
+
+Object RadarHandler::computeObjectFromCluster(const std::vector<RadarPoint> &cluster)
+{
+    if (cluster.empty())
+        return Object{};
+
+    // Compute centroid
+    float sum_x = 0, sum_y = 0;
+    for (const auto &point : cluster)
+    {
+        sum_x += point.forward_distance;
+        sum_y += point.lateral_distance;
+    }
+
+    float center_x = sum_x / cluster.size();
+    float center_y = sum_y / cluster.size();
+
+    // Compute average distance from centroid (radius)
+    float sum_dist = 0;
+    for (const auto &point : cluster)
+    {
+        float dx = point.forward_distance - center_x;
+        float dy = point.lateral_distance - center_y;
+        sum_dist += sqrt(dx * dx + dy * dy);
+    }
+
+    float radius = sum_dist / cluster.size();
+
+    return Object{center_x, center_y, radius, static_cast<int>(cluster.size())};
+}
+
+bool RadarHandler::isPointInsideSquare(const RadarPoint &point, const Square &square)
+{
+    // Transform to square-centered coordinates
+    float cos_theta = cos(-square.orientation_deg * M_PI / 180.0f);
+    float sin_theta = sin(-square.orientation_deg * M_PI / 180.0f);
+
+    float dx = point.forward_distance - square.center_forward;
+    float dy = point.lateral_distance - square.center_lateral;
+
+    float local_x = dx * cos_theta - dy * sin_theta;
+    float local_y = dx * sin_theta + dy * cos_theta;
+
+    return (abs(local_x) <= HALF_SIZE && abs(local_y) <= HALF_SIZE);
+}
+
 SquareDetectionResult RadarHandler::detectSquareBoundary(float inlier_threshold, int max_iterations)
 {
     std::vector<RadarPoint> points = getRecentPoints();
@@ -470,6 +599,31 @@ SquareDetectionResult RadarHandler::detectSquareBoundary(float inlier_threshold,
         result.edge_distances = calculateRadarToEdgeDistances(best_square);
         result.valid = true;
 
+        // Separate outliers and interior outliers
+        std::set<RadarPoint *> inlier_set;
+        for (auto &inlier : best_inliers)
+        {
+            inlier_set.insert(&inlier);
+        }
+
+        for (const auto &point : points)
+        {
+            bool is_inlier = false;
+            for (const auto &inlier : best_inliers)
+            {
+                if (&point == &inlier)
+                {
+                    is_inlier = true;
+                    break;
+                }
+            }
+
+            if (!is_inlier && isPointInsideSquare(point, best_square))
+            {
+                result.interior_outliers.push_back(point);
+            }
+        }
+
         std::cout << "Square detected: " << best_inlier_count << " inliers, center("
                   << best_square.center_forward << ", " << best_square.center_lateral
                   << "), angle=" << best_square.orientation_deg << "°" << std::endl;
@@ -480,4 +634,89 @@ SquareDetectionResult RadarHandler::detectSquareBoundary(float inlier_threshold,
     }
 
     return result;
+}
+
+ObjectDetectionResult RadarHandler::detectObjects(const std::vector<RadarPoint> &interior_outliers,
+                                                  int min_objects, float min_object_radius)
+{
+    ObjectDetectionResult result;
+    if (interior_outliers.size() < min_objects)
+    {
+        std::cout << "Insufficient interior points for " << min_objects << " clusters: "
+                  << interior_outliers.size() << std::endl;
+        return result;
+    }
+
+    // K-means clustering
+    std::vector<std::vector<RadarPoint>> clusters = kMeansCluster(interior_outliers, min_objects);
+
+    // Convert clusters to objects
+    for (const auto &cluster : clusters)
+    {
+        if (!cluster.empty())
+        {
+            Object object = computeObjectFromCluster(cluster);
+
+            if (true) // placeholder for potential filtering
+            {
+                result.objects.push_back(object);
+            }
+        }
+    }
+
+    result.num_objects = result.objects.size();
+    result.valid = result.num_objects > 0;
+
+    // Calculate object coverage
+    float total_object_area = 0;
+    for (const auto &object : result.objects)
+    {
+        total_object_area += M_PI * object.radius * object.radius;
+    }
+    float square_area = SIDE_LENGTH * SIDE_LENGTH;
+    result.object_coverage = total_object_area / square_area;
+
+    std::cout << "object detection: " << result.num_objects << " objects, "
+              << (result.object_coverage * 100) << "% coverage" << std::endl;
+
+    return result;
+}
+
+ComprehensiveDetectionResult RadarHandler::runDetectionPipeline(int num_objects, float square_inlier_threshold)
+{
+    ComprehensiveDetectionResult pipeline_result;
+
+    // Step 1. Detect square boundary
+    pipeline_result.square_result = detectSquareBoundary(square_inlier_threshold);
+
+    if (!pipeline_result.square_result.valid)
+    {
+        std::cout << "Pipeline failed: No valid square detected." << std::endl;
+        return pipeline_result;
+    }
+
+    // Step 2. Detect obstacles in interior outliers
+    if (pipeline_result.square_result.interior_outliers.size() >= num_objects)
+    {
+        pipeline_result.object_result = detectObjects(
+            pipeline_result.square_result.interior_outliers, num_objects);
+
+        if (pipeline_result.object_result.valid)
+        {
+            pipeline_result.pipeline_success = true;
+            std::cout << "Pipeline success: Square + " << pipeline_result.object_result.num_objects
+                      << " objects detected" << std::endl;
+        }
+        else
+        {
+            std::cout << "Pipeline partial success: Square detected, but objects detection failed" << std::endl;
+        }
+    }
+    else
+    {
+        std::cout << "Pipeline partial success: Square detected, insufficient interior points for objects ("
+                  << pipeline_result.square_result.interior_outliers.size() << " < " << num_objects << ")" << std::endl;
+    }
+
+    return pipeline_result;
 }

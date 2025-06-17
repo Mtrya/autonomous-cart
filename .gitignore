@@ -4,3 +4,4 @@ build/
 .pth
 plots/
 rplidar_sdk/
+__pycache__

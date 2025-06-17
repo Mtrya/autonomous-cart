@@ -48,6 +48,7 @@ struct SquareDetectionResult
 {
     Square square;
     std::vector<RadarPoint> inliers;
+    std::vector<RadarPoint> interior_outliers; // outliers inside square (objects)
     size_t num_inliers;
     float fitness_score;
 
@@ -127,7 +128,7 @@ public:
     std::pair<float, float> getRangeFilter() const { return {min_range_mm_, max_range_mm_}; }
 
     // Core Detection Methods
-    SquareDetectionResult detectSquareBoundary(float inlier_threshold = 100.0f, int max_iterations = 1000);
+    SquareDetectionResult detectSquareBoundary(float inlier_threshold = 128.0f, int max_iterations = 1000);
     ObjectDetectionResult detectObjects(const std::vector<RadarPoint> &interior_outliers,
                                         int num_objects = 4, float min_object_radius = 200.0f);
     ComprehensiveDetectionResult runDetectionPipeline(int num_objects = 4, float square_inlier_threshold = 100.0f);
