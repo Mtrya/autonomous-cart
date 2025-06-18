@@ -303,6 +303,7 @@ void RadarHandler::addPoint(const sl_lidar_response_measurement_node_hq_t &node)
     if (current_sync && !last_sync_state_)
     {
         rotation_count_++;
+        std::cout << "Rotation detected! Count: " << rotation_count_ << std::endl;
     }
     last_sync_state_ = current_sync;
 
@@ -637,18 +638,18 @@ SquareDetectionResult RadarHandler::detectSquareBoundary(float inlier_threshold,
 }
 
 ObjectDetectionResult RadarHandler::detectObjects(const std::vector<RadarPoint> &interior_outliers,
-                                                  int min_objects, float min_object_radius)
+                                                  int num_objects)
 {
     ObjectDetectionResult result;
-    if (interior_outliers.size() < min_objects)
+    if (interior_outliers.size() < num_objects)
     {
-        std::cout << "Insufficient interior points for " << min_objects << " clusters: "
+        std::cout << "Insufficient interior points for " << num_objects << " clusters: "
                   << interior_outliers.size() << std::endl;
         return result;
     }
 
     // K-means clustering
-    std::vector<std::vector<RadarPoint>> clusters = kMeansCluster(interior_outliers, min_objects);
+    std::vector<std::vector<RadarPoint>> clusters = kMeansCluster(interior_outliers, num_objects);
 
     // Convert clusters to objects
     for (const auto &cluster : clusters)
@@ -683,7 +684,7 @@ ObjectDetectionResult RadarHandler::detectObjects(const std::vector<RadarPoint> 
 }
 
 ComprehensiveDetectionResult RadarHandler::runDetectionPipeline(int num_objects, float square_inlier_threshold)
-{
+{ // Adjust square_inlier_threshold according to real noise level.
     ComprehensiveDetectionResult pipeline_result;
 
     // Step 1. Detect square boundary

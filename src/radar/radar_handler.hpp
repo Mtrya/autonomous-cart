@@ -97,8 +97,8 @@ struct ComprehensiveDetectionResult
 class RadarHandler
 {
 public:
-    RadarHandler(size_t max_buffer_size = 1024); // 1024 = approximately 1s
-    ~RadarHandler();                             // ensures clean shutdown
+    RadarHandler(size_t max_buffer_size = 256); // 256 = approximately 3.7 rotations
+    ~RadarHandler();                            // ensures clean shutdown
 
     // Connection management
     bool connect(const std::string &serial_port = "/dev/ttyUSB0", sl_u32 baudrate = 115200);
@@ -129,9 +129,8 @@ public:
 
     // Core Detection Methods
     SquareDetectionResult detectSquareBoundary(float inlier_threshold = 128.0f, int max_iterations = 1000);
-    ObjectDetectionResult detectObjects(const std::vector<RadarPoint> &interior_outliers,
-                                        int num_objects = 4, float min_object_radius = 200.0f);
-    ComprehensiveDetectionResult runDetectionPipeline(int num_objects = 4, float square_inlier_threshold = 100.0f);
+    ObjectDetectionResult detectObjects(const std::vector<RadarPoint> &interior_outliers, int num_objects = 4);
+    ComprehensiveDetectionResult runDetectionPipeline(int num_objects = 1, float square_inlier_threshold = 100.0f);
 
 private:
     // LIDAR hardware
