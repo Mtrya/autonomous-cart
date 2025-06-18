@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 Core detection algorithms for square boundary and object detection
 Replicates C++ RadarHandler algorithms for testing and validation

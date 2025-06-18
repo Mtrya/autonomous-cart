@@ -1,0 +1,10 @@
+numpy
+onnx
+opencv-python
+pandas
+pillows
+scikit-learn
+scipy
+torch
+tqdm
+openai
